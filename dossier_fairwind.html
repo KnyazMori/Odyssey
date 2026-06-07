@@ -155,8 +155,15 @@
   }
   .threat-level:first-child { border-radius: 3px 0 0 3px; }
   .threat-level:last-child { border-radius: 0 3px 3px 0; }
-  .threat-level.active-crit { background: rgba(139,0,0,0.25); color: var(--crimson); border-color: rgba(139,0,0,0.4); }
+  .threat-level.active-high { background: rgba(180,80,0,0.25); color: #8a3a00; border-color: rgba(180,80,0,0.4); box-shadow: 0 0 4px rgba(180,80,0,0.2); }
 
+	  /* Визуальные состояния уровней угрозы */
+  .threat-level.active-low { background: rgba(80,100,50,0.2); color: #4a5a28; border-color: rgba(80,100,50,0.3); }
+  .threat-level.active-mod { background: rgba(139,105,20,0.2); color: #7a5a10; border-color: rgba(139,105,20,0.3); }
+  .threat-level.active-high { background: rgba(180,80,0,0.25); color: #8a3a00; border-color: rgba(180,80,0,0.4); box-shadow: 0 0 4px rgba(180,80,0,0.2); }
+  .threat-level.active-crit { background: rgba(139,0,0,0.25); color: var(--crimson); border-color: rgba(139,0,0,0.4); }
+  .threat-level.active-ext { background: rgba(80,0,0,0.35); color: #cc0000; border-color: rgba(80,0,0,0.5); text-shadow: 0 0 4px rgba(200,0,0,0.3); }
+	
   .dossier-footer {
     position: absolute; bottom: 15px; left: 32px; right: 20px;
     display: flex; justify-content: space-between; align-items: flex-end;
@@ -434,7 +441,7 @@
     });
   }
   levels.forEach(lv => lv.addEventListener('click', () => setThreatLevel(parseInt(lv.getAttribute('data-level')))));
-  setThreatLevel("3");
+  setThreatLevel(3);
 </script>
 </body>
 </html>
