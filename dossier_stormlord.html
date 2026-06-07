@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Досье — Повелитель бурь</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Oranienbaum&family=Spectral+SC:wght@400;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --burgundy: #5C0A0A; --crimson: #8B0000; --bronze: #8B6914; --bronze-light: #B8860B;
+    --bone-white: #E8DCC8; --parchment: #D4C5A0; --ink: #1A0A00; --ink-light: #3A2A1A;
+    --blood: #6B0000; --wax: #7A1515;
+    --font-gothic: 'Oranienbaum', serif; --font-label: 'Spectral SC', serif;
+    --font-serif: 'Old Standard TT', serif; --font-hand: 'Caveat', cursive;
+  }
+
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, #1a1008 0%, #0d0804 60%, #050302 100%);
+    font-family: var(--font-serif); color: var(--ink); overflow-x: hidden; padding: 20px 10px;
+  }
+
+  .candle-glow {
+    position: fixed; top: -20%; left: 50%; transform: translateX(-50%); width: 800px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(180,120,40,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: 0; animation: candleFlicker 4s ease-in-out infinite;
+  }
+  @keyframes candleFlicker { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.8; } }
+
+  .open-hint {
+    font-family: var(--font-serif); font-style: italic; color: var(--bronze-light);
+    font-size: 14px; margin-top: 18px; opacity: 0.7; transition: opacity 0.5s; text-align: center;
+  }
+  .open-hint.hidden { opacity: 0; pointer-events: none; }
+
+  /* ===== ПАПКА (А4 ГОРИЗОНТАЛЬНАЯ) ===== */
+  .folder {
+    position: relative; width: 100%; max-width: 960px; perspective: 2500px; z-index: 1;
+  }
+
+  /* ===== ОБЛОЖКА ===== */
+  .folder-cover {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; /* Перекрывает всю книгу */
+    border-radius: 6px; cursor: pointer;
+    transform-origin: left center; transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease 0.4s;
+    z-index: 20; overflow: hidden;
+    background: radial-gradient(ellipse at 30% 40%, rgba(80,30,20,0.25) 0%, transparent 45%),
+      linear-gradient(155deg, #2E1810 0%, #1A0A05 35%, #251210 65%, #1A0A05 100%);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 0 80px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .folder-cover::before { content: ''; position: absolute; inset: 12px; border: 1.5px solid rgba(139,105,20,0.15); border-radius: 3px; pointer-events: none; }
+  .folder.open .folder-cover { transform: rotateY(-150deg); opacity: 0; pointer-events: none; }
+
+  .cover-title { font-family: var(--font-gothic); font-size: 52px; color: var(--bronze); text-shadow: 0 2px 0 rgba(0,0,0,0.8); letter-spacing: 8px; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+  .cover-subtitle { font-family: var(--font-label); font-size: 14px; color: rgba(139,105,20,0.5); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 40px; text-align: center; }
+  .seal-wrapper { position: relative; width: 130px; height: 130px; margin-bottom: 20px; }
+  .seal { width: 100%; height: 100%; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+  .wax-drip { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); width: 14px; height: 16px; background: linear-gradient(180deg, #7A1515, #4A0000); border-radius: 0 0 50% 50%; }
+  .cover-classification { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(139,105,20,0.35); }
+
+  /* ===== КНИГА (РАЗВОРОТЫ А5) ===== */
+  .folder-contents {
+    position: relative; opacity: 0; transform: translateY(20px);
+    transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s; pointer-events: none;
+  }
+  .folder.open .folder-contents { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+  .a5-book {
+    position: relative; width: 100%; aspect-ratio: 297 / 210; /* Формат А4 (два А5) */
+    background: #1a0f08; border-radius: 6px 10px 10px 6px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 3px 0 10px rgba(0,0,0,0.5);
+  }
+
+  /* Распространение (Развороты) */
+  .spread {
+    position: absolute; inset: 0; display: flex; border-radius: 6px 10px 10px 6px; overflow: hidden;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.5s ease; transform: scale(0.98); z-index: 1;
+  }
+  .spread.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 5; }
+
+  /* Страницы */
+  .page-a5 {
+    width: 50%; height: 100%; display: flex; flex-direction: column; position: relative;
+    background:
+      radial-gradient(ellipse at 85% 15%, rgba(110,75,25,0.12) 0%, transparent 18%),
+      radial-gradient(ellipse at 55% 75%, rgba(100,70,20,0.08) 0%, transparent 28%),
+      linear-gradient(175deg, #E8DCC8 0%, #DDD0B8 25%, #D4C5A0 55%, #CDBEA0 80%, #C8B890 100%);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.08);
+  }
+  .page-a5::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0.2;
+    background: repeating-linear-gradient(45deg, transparent, transparent 1px, rgba(0,0,0,0.01) 1px, rgba(0,0,0,0.01) 2px);
+  }
+
+  /* Корешок и тени страниц */
+  .page-left { border-radius: 6px 0 0 6px; padding: 28px 20px 25px 32px; border-right: 2px solid rgba(0,0,0,0.15); box-shadow: inset -15px 0 25px rgba(0,0,0,0.08); }
+  .page-right { border-radius: 0 10px 10px 0; padding: 28px 32px 25px 20px; box-shadow: inset 15px 0 25px rgba(0,0,0,0.08); }
+
+  .empty-page {
+    background: linear-gradient(to right, #D8C8A0, #C8B890) !important;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.15) !important;
+  }
+  .cover-inner {
+    background: radial-gradient(ellipse at 30% 40%, rgba(80,30,20,0.25) 0%, transparent 45%),
+      linear-gradient(155deg, #2E1810 0%, #1A0A05 35%, #251210 65%, #1A0A05 100%) !important;
+    box-shadow: inset -20px 0 40px rgba(0,0,0,0.5) !important;
+  }
+
+  /* ===== СЕКЦИИ И ТЕКСТ ===== */
+  .section { position: relative; margin-bottom: 10px; z-index: 6; }
+  .section:last-child { margin-bottom: 0; }
+  .section-header {
+    font-family: var(--font-gothic); font-size: 22px; color: var(--burgundy); letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--bronze);
+  }
+  .section-header::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 30px; height: 2px; background: var(--bronze-light); }
+
+  .field-row { display: flex; align-items: baseline; margin-bottom: 3px; gap: 6px; }
+  .field-label { font-family: var(--font-label); font-weight: 600; font-size: 11px; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; min-width: 75px; }
+  .field-value { flex: 1; font-family: var(--font-hand); font-size: 18px; color: rgba(26,10,0,0.85); line-height: 1.2; }
+  .field-value.long {
+    border-left: 1px solid rgba(26,10,0,0.1); padding-left: 10px; font-size: 17px; margin-top: 4px; line-height: 1.2;
+  }
+  .field-value.long b { font-weight: 700; color: var(--ink); }
+
+  /* ===== ПОРТРЕТ ===== */
+  .pasted-photo-container {
+    position: relative; width: 70%; margin: 10px auto 15px; z-index: 6; transform: rotate(-1.5deg); flex-shrink: 0;
+  }
+  .pasted-photo-frame {
+    background: #f0e8d8; padding: 6px 6px 24px 6px; box-shadow: 2px 3px 8px rgba(0,0,0,0.4); position: relative;
+  }
+  .pasted-photo { width: 100%; height: auto; display: block; filter: sepia(0.4) contrast(1.1) brightness(0.9); }
+  .photo-caption {
+    position: absolute; bottom: 5px; left: 10px; right: 10px;
+    font-family: var(--font-hand); font-size: 15px; color: var(--ink-light); text-align: center;
+  }
+  .tape { position: absolute; width: 70px; height: 18px; background: rgba(220,210,180,0.5); box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 7; }
+  .tape-top { top: -7px; left: 50%; transform: translateX(-50%) rotate(1deg); }
+  .wanted-stamp {
+    position: absolute; top: 15px; right: 15px; font-family: var(--font-gothic); font-size: 18px;
+    color: var(--crimson); border: 2px solid var(--crimson); padding: 2px 8px;
+    transform: rotate(5deg); opacity: 0.6; text-transform: uppercase; z-index: 8;
+  }
+
+  /* ===== УГРОЗА ===== */
+  .threat-gauge { display: flex; gap: 3px; margin: 8px 0; }
+  .threat-level {
+    flex: 1; height: 18px; background: rgba(26,10,0,0.06); border: 1px solid rgba(26,10,0,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-label); font-size: 7px; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(26,10,0,0.3); cursor: pointer;
+  }
+  .threat-level:first-child { border-radius: 3px 0 0 3px; }
+  .threat-level:last-child { border-radius: 0 3px 3px 0; }
+  .threat-level.active-high { background: rgba(180,80,0,0.25); color: #8a3a00; border-color: rgba(180,80,0,0.4); box-shadow: 0 0 4px rgba(180,80,0,0.2); }
+
+	  /* Визуальные состояния уровней угрозы */
+  .threat-level.active-low { background: rgba(80,100,50,0.2); color: #4a5a28; border-color: rgba(80,100,50,0.3); }
+  .threat-level.active-mod { background: rgba(139,105,20,0.2); color: #7a5a10; border-color: rgba(139,105,20,0.3); }
+  .threat-level.active-high { background: rgba(180,80,0,0.25); color: #8a3a00; border-color: rgba(180,80,0,0.4); box-shadow: 0 0 4px rgba(180,80,0,0.2); }
+  .threat-level.active-crit { background: rgba(139,0,0,0.25); color: var(--crimson); border-color: rgba(139,0,0,0.4); }
+  .threat-level.active-ext { background: rgba(80,0,0,0.35); color: #cc0000; border-color: rgba(80,0,0,0.5); text-shadow: 0 0 4px rgba(200,0,0,0.3); }
+	
+  .dossier-footer {
+    position: absolute; bottom: 15px; left: 32px; right: 20px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid rgba(26,10,0,0.1); padding-top: 5px; z-index: 6;
+  }
+  .footer-stamp { font-family: var(--font-label); font-weight: 700; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: rgba(139,0,0,0.25); border: 1px solid rgba(139,0,0,0.2); padding: 2px 5px; }
+  .footer-note { font-family: var(--font-hand); font-size: 14px; color: rgba(26,10,0,0.4); }
+
+  .page-number { position: absolute; bottom: 15px; font-family: var(--font-label); font-size: 10px; color: rgba(26,10,0,0.2); z-index: 6; }
+  .page-left .page-number { right: 25px; }
+  .page-right .page-number { left: 25px; }
+
+  .classified-stamp {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-18deg);
+    font-family: var(--font-gothic); font-size: 48px; letter-spacing: 6px; text-transform: uppercase;
+    color: rgba(139,0,0,0.08); border: 2px solid rgba(139,0,0,0.08); padding: 4px 15px;
+    pointer-events: none; z-index: 8; white-space: nowrap;
+  }
+
+  /* ===== НАВИГАЦИЯ ===== */
+  .book-nav {
+    display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; z-index: 10;
+  }
+  .book-nav button {
+    font-family: var(--font-label); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--bronze); background: rgba(46,24,16,0.8); border: 1px solid rgba(139,105,20,0.2);
+    padding: 8px 16px; cursor: pointer; border-radius: 2px; transition: all 0.3s;
+  }
+  .book-nav button:hover { background: rgba(46,24,16,1); border-color: rgba(139,105,20,0.5); }
+  .book-nav button:disabled { opacity: 0.3; cursor: default; }
+  .page-indicator { font-family: var(--font-label); font-size: 13px; color: var(--bronze); letter-spacing: 1px; }
+
+  .close-dossier-btn {
+    position: fixed; top: 20px; right: 24px; z-index: 100; font-family: var(--font-label);
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--bronze);
+    background: rgba(26,10,0,0.92); border: 1px solid rgba(139,105,20,0.25);
+    padding: 8px 18px; cursor: pointer; border-radius: 2px; transition: all 0.3s;
+    opacity: 0; pointer-events: none; transform: translateY(-10px);
+  }
+  .close-dossier-btn.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+  @media (max-width: 800px) {
+    .a5-book { max-width: 100%; aspect-ratio: auto; min-height: 85vh; flex-direction: column; }
+    .spread { flex-direction: column; overflow-y: auto; }
+    .page-a5 { width: 100%; min-height: 85vh; padding: 24px 20px 30px 28px; }
+    .page-left { border-radius: 10px 10px 0 0; border-right: none; border-bottom: 2px solid rgba(0,0,0,0.1); box-shadow: none; }
+    .page-right { border-radius: 0 0 10px 10px; box-shadow: none; }
+    .empty-page, .cover-inner { display: none; } /* Скрываем пустые страницы на мобильных */
+  }
+</style>
+</head>
+<body>
+
+<div class="candle-glow" aria-hidden="true"></div>
+<a href="index.html" class="close-dossier-btn" id="closeDossierBtn">Закрыть досье</a>
+
+<div class="folder" id="folder">
+  <!-- Обложка (Закрывает весь разворот А4) -->
+  <div class="folder-cover" id="folderCover" tabindex="0" role="button">
+    <div style="text-align: center;">
+      <h1 class="cover-title">СЕКРЕТНО</h1>
+      <p class="cover-subtitle">Канцелярия Ордена Дыбы</p>
+      <div class="seal-wrapper" style="margin: 0 auto 20px;">
+        <svg class="seal" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="92" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/>
+          <circle cx="100" cy="100" r="85" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="4 3"/>
+          <g transform="translate(100,72)">
+            <path d="M-30,12 L-24,-4 L-16,8 L-8,-12 L0,4 L8,-12 L16,8 L24,-4 L30,12 Z" fill="#8B2020" stroke="#5A0E0E" stroke-width="1"/>
+            <path d="M-24,-4 L-28,-22 L-20,-8" fill="#7A1818"/>
+            <path d="M24,-4 L28,-22 L20,-8" fill="#7A1818"/>
+            <rect x="-28" y="12" width="56" height="5" rx="1" fill="#6B1515"/>
+          </g>
+          <g transform="translate(100,118)" opacity="0.7">
+            <polygon points="0,-18 17,12 -17,12" fill="none" stroke="#8B2020" stroke-width="1.2"/>
+            <polygon points="0,18 -17,-12 17,-12" fill="none" stroke="#8B2020" stroke-width="1.2"/>
+            <circle cx="0" cy="0" r="20" fill="none" stroke="#7A1818" stroke-width="0.8"/>
+          </g>
+        </svg>
+        <div class="wax-drip"></div>
+      </div>
+      <p class="cover-classification">Совершенно секретно</p>
+    </div>
+  </div>
+
+  <!-- Содержимое: Книга А4 (Развороты А5) -->
+  <div class="folder-contents" id="folderContents">
+    <div class="a5-book" id="a5Book">
+
+      <!-- РАЗВОРОТ 1: Обложка + Страница 1 -->
+      <div class="spread active" data-spread="0">
+        <div class="page-a5 page-left cover-inner"></div>
+        <div class="page-a5 page-right">
+          <div class="wanted-stamp">Наблюдение</div>
+          <div class="pasted-photo-container">
+            <div class="tape tape-top"></div>
+            <div class="pasted-photo-frame">
+              <img class="pasted-photo" src="https://s.fotora.ru/98597f5acb715816.jpeg" alt="Портрет Повелителя Бурь">
+              <div class="photo-caption">Повелитель Бурь, ок. 4716 г.</div>
+            </div>
+          </div>
+          <div class="section" style="margin-top: auto;">
+            <div class="field-row"><span class="field-label">Дело №:</span><span class="field-value" style="font-size: 20px;">4211/ЧС/ПБ</span></div>
+            <div class="field-row"><span class="field-label">Классификация:</span><span class="field-value" style="color: var(--crimson); font-weight: bold;">Наблюдение</span></div>
+          </div>
+          <span class="page-number">1</span>
+        </div>
+      </div>
+
+      <!-- РАЗВОРОТ 2: Страница 2 + Страница 3 -->
+      <div class="spread" data-spread="1">
+        <div class="page-a5 page-left">
+          <section class="section">
+            <h2 class="section-header">Идентификация</h2>
+            <div class="field-row"><span class="field-label">Имя:</span><span class="field-value">Повелитель Бурь</span></div>
+            <div class="field-row"><span class="field-label">Прозвище:</span><span class="field-value">Друид из Дренчпорта</span></div>
+            <div class="field-row"><span class="field-label">Происхождение:</span><span class="field-value">Точное происхождение неизвестно. Большинство историй сходятся на том, что он родился в Затопленных Землях (Sodden Lands) во время одной из мощных бурь, характерных для этого региона. Азаркет </span></div>
+            <div class="field-row"><span class="field-label">Принадлежность:</span><span class="field-value">член Пиратского Совета. Действующий агент </span></div>
+            <div class="field-row"><span class="field-label">Статус:</span><span class="field-value">Свободный Капитан. Лорд Дренчпорта. Король Ураганов</span></div>
+            <div class="field-row"><span class="field-label">Связи:</span><span class="field-value">Компаньон: Гигантский кальмар. Дочь — Афина (Athena). Установлено: является капитаном небольшого флота из 4 кораблей. Уязвимость и рычаг давления. Имеет напряженные отношения с Тессой Фэйрвинд. Вражда с Арронаксом Эндимионом. Подтвердил устранение Кровааого Мортоса. Дому Шартаньон выплачена компенсация. </span></div>
+            <div class="field-row" style="align-items: flex-start;">
+              <span class="field-label">Приметы:</span>
+              <span class="field-value">Рыжеволосый мужчина азаркет. </span>
+            </div>
+          </section>
+          <section class="section">
+            <h2 class="section-header">Личная история (ч. I)</h2>
+            <div class="field-value long">
+              <b>Карьера.</b> Таинственный друид, известный как Повелитель бурь, является членом Пиратского Совета. Он правит портом Дренчпорт и воспринимает пиратство как простое расширение естественных отношений хищник-жертва, считая себя высшим хищником в этой среде.<br>
+            </div>
+          </section>
+          <span class="page-number">2</span>
+        </div>
+
+        <div class="page-a5 page-right">
+          <div class="classified-stamp" aria-hidden="true">Секретно</div>
+          <section class="section">
+           <h2 class="section-header">Личная история (ч. II)</h2>
+            <div class="field-value long">
+              <b>Восхождение.</b> Выигрывал Гонку Свободных Капитанов (Free Captains' Regatta) пять раз подряд (с 4707 по 4711 гг. AR) и ушел на пенсию в 4712 г. AR, став судьей.<br>
+              <b>Операция «Смена Курса» (4713-4716 AR).</b> Завербован. Операция «Смена Курса» — успешна. Цель находится под оперативным контролем. Его задача — ограничить пиратские набеги на имперские суда и перенаправить агрессию в другие регионы. Его дочь Афина находится под негласным контролем (постоянное наблюдение). 
+            </div>
+          </section>
+          <section class="section">          
+            <h2 class="section-header">Психологический профиль (ч. I)</h2>
+            <div class="field-value long">
+              Повелитель бурь — нарцисс и социопат, чья мораль зиждется исключительно на праве сильного.<br>
+              <b>Мотивация:</b> Власть и контроль. Он устал быть просто уважаемым капитаном и хотел абсолютной власти.<br>
+              <b>Отношение к Короне:</b> Прагматичное. Он не любит Империю (идеологически), но уважает силу. Он сотрудничает, потому что это выгодно, и потому что мы дали ему то, что он не мог взять сам.<br>
+              <b>Характер:</b> Замкнутый, подозрительный. Он яростно реагирует на упоминания о своем прошлом (предположительно, каннибализм в Ямасе).<br>
+              <b>Политическое поведение:</b> Проводит большую часть времени на борту «Кракена», правя своей вотчиной (Дренчпорт) расслабленной рукой. Однако, став Королем Ураганов, он вынужден больше времени уделять политике, что вызывает у него раздражение.<br>
+              <b>Склонности:</b> Рассматривает пиратство как естественный отбор. Сильный всегда прав. Предпочитает проводить время в море, а не на суше.Склонность к одиночным опасным плаваниям.<br>             
+            </div>
+          </section>
+          <span class="page-number">3</span>
+        </div>
+      </div>
+
+      <!-- РАЗВОРОТ 3: Страница 3 + Страница 4 -->
+      <div class="spread" data-spread="2">
+        <div class="page-a5 page-left">
+          <section class="section">
+           <h2 class="section-header">Психологический профиль (ч. II)</h2>
+            <div class="field-value long">
+              <b>Слабости:</b> Вера в то, что он «высший хищник», делает его предсказуемым. Он не ожидает удара от того, кого считает добычей. Без нашей поддержки он потеряет трон. Он не обладает достаточным количеством собственных ресурсов, чтобы удержать власть над Порт Перил. Друид слишком сильно привязан к своему гигантскому кальмару. Убийство спутника нанесет серьезный психологический урон и снизит боевую мощь. Дочь (Афина)находится под постоянным контролем полевоо агента 584. Агент пользуется полным доверием объекта.
+            </div>
+          </section>
+          <section class="section">
+            <h2 class="section-header">Тактическая оценка</h2>
+            <div class="field-value long">
+             Повелитель бурь — одинокий убийца. Он не силён в классическом линейном сражении. Его сила — в использовании магии природы (ветры, штормы, приливы) и психологическом давлении.
+              <b>Базирование:</b> Порт Дренчпорт (Drenchport) на острове Темпест-Кей (Tempest Cay) у края Глаза Абендего. Порт Перил (Port Peril) — столица Расколотых Оков.<br>
+              <b>Вооруженные силы:</b> Ксебек «Кракен» (Kraken) — быстрый, маневренный корабль. Малая численность лично преданного флота (в отличие от Тессы Фэйрвинд). Неумение управлять большой коалицией пиратов (расслабленная рука правления). Зависимость от спутника-кальмара.<br>
+              <b>Рекомендация:</b> Не внедрять агентов-челийцев напрямую.Вербовка через Аварнея. Агент переиграл её однажды и до сих пор уходит от возмездия. Его методы (шпионаж/инновации) эффективны против её порывистости.
+            </div>
+          </section>
+		  <span class="page-number">3</span>
+        </div>
+        
+		<div class="page-a5 page-right">
+          <div class="classified-stamp" aria-hidden="true">Секретно</div>
+          <section class="section" style="margin-top: auto;">
+            <h2 class="section-header">Уровень угрозы</h2>
+            <div class="threat-gauge" id="threatGauge">
+              <div class="threat-level" data-level="1">Низкий</div>
+              <div class="threat-level" data-level="2">Умер.</div>
+              <div class="threat-level" data-level="3">Высокий</div>
+              <div class="threat-level" data-level="4">Критич.</div>
+              <div class="threat-level" data-level="5">Экстр.</div>
+            </div>
+            <div class="field-row"><span class="field-label">Обоснование:</span><span class="field-value">Обеспечить, чтобы объект не вступал в прямой конфликт с имперским флотом, а перенаправлял пиратов на суда Андорана (Andoran) и Талдора (Taldor). В случае получения приказа «Экстренная замена» — инициировать процедуру ликвидации объекта и возведения на трон Тессы Фэйрвинд (как более слабой и управляемой хаосом фигуры).</span></div>
+            <div class="field-row"><span class="field-label">Приказ:</span><span class="field-value">Наблюдение и контроль.</span></div>
+          </section>
+          <div class="dossier-footer">
+            <span class="footer-stamp">Одобрено Орден Дыбы</span>
+            <span class="footer-note">Трибунал Оперативного Управления.</span>
+          </div>
+          <span class="page-number">4</span>
+        </div>
+        
+      </div>
+      
+      
+
+    </div>
+
+    <!-- Навигация -->
+    <div class="book-nav">
+      <button id="prevPage" disabled>Назад</button>
+      <span class="page-indicator" id="pageIndicator">Разворот 1 / 3</span>
+      <button id="nextPage">Вперед</button>
+    </div>
+  </div>
+</div>
+
+<p class="open-hint" id="openHint">Нажмите на печать, чтобы вскрыть досье</p>
+
+<script>
+  const folder = document.getElementById('folder');
+  const cover = document.getElementById('folderCover');
+  const hint = document.getElementById('openHint');
+  const closeBtn = document.getElementById('closeDossierBtn');
+  let isOpen = false;
+
+  function openFolder() {
+    if (isOpen) return;
+    isOpen = true;
+    folder.classList.add('open');
+    hint.classList.add('hidden');
+    closeBtn.classList.add('visible');
+  }
+
+  function closeFolder() {
+    if (!isOpen) return;
+    isOpen = false;
+    folder.classList.remove('open');
+    hint.classList.remove('hidden');
+    closeBtn.classList.remove('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goToSpread(0);
+  }
+
+  cover.addEventListener('click', openFolder);
+  cover.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFolder(); } });
+  closeBtn.addEventListener('click', closeFolder);
+
+  // Навигация по разворотам
+  const spreads = document.querySelectorAll('.spread');
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  const pageIndicator = document.getElementById('pageIndicator');
+  let currentSpread = 0;
+  const totalSpreads = spreads.length;
+
+  function goToSpread(spreadIndex) {
+    if (spreadIndex < 0 || spreadIndex >= totalSpreads) return;
+    currentSpread = spreadIndex;
+    
+    spreads.forEach((s, idx) => {
+      s.classList.remove('active');
+      if (idx === currentSpread) s.classList.add('active');
+    });
+
+    prevBtn.disabled = currentSpread === 0;
+    nextBtn.disabled = currentSpread === totalSpreads - 1;
+    pageIndicator.textContent = `Разворот ${currentSpread + 1} / ${totalSpreads}`;
+  }
+
+  prevBtn.addEventListener('click', () => goToSpread(currentSpread - 1));
+  nextBtn.addEventListener('click', () => goToSpread(currentSpread + 1));
+
+  // Свайп для мобильных
+  let touchStartX = 0;
+  const bookEl = document.getElementById('a5Book');
+  bookEl.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+  bookEl.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) goToSpread(currentSpread + 1); // Свайп влево
+      else goToSpread(currentSpread - 1); // Свайп вправо
+    }
+  }, {passive: true});
+
+  // Угроза
+  const threatGauge = document.getElementById('threatGauge');
+  const levels = threatGauge.querySelectorAll('.threat-level');
+  const classMap = { 1: 'active-low', 2: 'active-mod', 3: 'active-high', 4: 'active-crit', 5: 'active-ext' };
+
+  function setThreatLevel(n) {
+    levels.forEach(lv => {
+      lv.className = 'threat-level';
+      const lvNum = parseInt(lv.getAttribute('data-level'));
+      if (n > 0 && lvNum <= n) lv.classList.add(classMap[lvNum]);
+    });
+  }
+  levels.forEach(lv => lv.addEventListener('click', () => setThreatLevel(parseInt(lv.getAttribute('data-level')))));
+  setThreatLevel(2);
+</script>
+</body>
+</html>
