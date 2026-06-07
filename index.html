@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Канцелярия Разведки Ордена Дыбы — Индекс Досье</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Oranienbaum&family=Spectral+SC:wght@400;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --burgundy: #5C0A0A; --crimson: #8B0000; --bronze: #8B6914; --bronze-light: #B8860B;
+    --bronze-pale: #C9A84C; --bone-white: #E8DCC8; --parchment: #D4C5A0; --ink: #1A0A00;
+    --ink-light: #3A2A1A; --blood: #6B0000; --wax: #7A1515; --wax-bright: #9B2020;
+    --font-gothic: 'Oranienbaum', serif; --font-label: 'Spectral SC', serif;
+    --font-serif: 'Old Standard TT', serif; --font-hand: 'Caveat', cursive;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      repeating-linear-gradient(92deg, transparent, transparent 12px, rgba(0,0,0,0.04) 12px, rgba(0,0,0,0.04) 13px),
+      radial-gradient(ellipse at 50% 30%, #1a1008 0%, #0d0804 60%, #050302 100%);
+    font-family: var(--font-serif); color: var(--bone-white); overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
+  }
+
+  .candle-glow {
+    position: fixed; top: -20%; left: 50%; transform: translateX(-50%); width: 1000px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(180,120,40,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0; animation: candleFlicker 4s ease-in-out infinite;
+  }
+  @keyframes candleFlicker { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.9; } }
+
+  /* ===== HEADER ===== */
+  header {
+    position: relative; z-index: 2; text-align: center; margin-bottom: 50px; width: 100%; max-width: 900px;
+  }
+
+  .header-seal {
+    width: 100px; height: 100px; margin: 0 auto 20px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+    animation: sealPulse 3s ease-in-out infinite;
+  }
+  @keyframes sealPulse { 0%, 100% { filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)) brightness(1); } 50% { filter: drop-shadow(0 4px 15px rgba(139,0,0,0.2)) brightness(1.1); } }
+
+  h1 {
+    font-family: var(--font-gothic); font-size: clamp(32px, 6vw, 56px); color: var(--bronze);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.8), 0 0 20px rgba(139,105,20,0.2); letter-spacing: 4px;
+    text-transform: uppercase; line-height: 1.1; margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-family: var(--font-label); font-size: clamp(12px, 2vw, 16px); color: rgba(139,105,20,0.6);
+    letter-spacing: 4px; text-transform: uppercase; border-top: 1px solid var(--burgundy);
+    border-bottom: 1px solid var(--burgundy); padding: 8px 0; display: inline-block;
+  }
+
+  /* ===== GRID ===== */
+  main {
+    position: relative; z-index: 2; width: 100%; max-width: 1200px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+  }
+
+  /* ===== DOSSIER CARD ===== */
+  .dossier-card {
+    position: relative; display: flex; flex-direction: column; justify-content: space-between;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px),
+      radial-gradient(ellipse at 30% 40%, rgba(80,30,20,0.25) 0%, transparent 45%),
+      linear-gradient(155deg, #2E1810 0%, #1A0A05 35%, #251210 65%, #1A0A05 100%);
+    border: 1px solid rgba(139,105,20,0.2); border-radius: 6px;
+    padding: 25px; cursor: pointer; text-decoration: none; color: var(--bone-white);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(139,105,20,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    overflow: hidden;
+  }
+
+  .dossier-card::before {
+    content: ''; position: absolute; inset: 8px; border: 1px solid rgba(139,105,20,0.1);
+    border-radius: 3px; pointer-events: none; transition: border-color 0.3s;
+  }
+
+  .dossier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 60px rgba(0,0,0,0.3), 0 0 15px rgba(139,105,20,0.1);
+    border-color: var(--bronze);
+  }
+  .dossier-card:hover::before { border-color: rgba(139,105,20,0.25); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+
+  .mini-seal { width: 50px; height: 50px; opacity: 0.7; flex-shrink: 0; }
+
+  .threat-badge {
+    font-family: var(--font-label); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.3);
+  }
+  .threat-ext { background: rgba(80,0,0,0.6); color: #ff3333; border-color: #8B0000; text-shadow: 0 0 5px rgba(200,0,0,0.5); }
+  .threat-crit { background: rgba(139,0,0,0.4); color: #cc0000; border-color: rgba(139,0,0,0.6); }
+  .threat-high { background: rgba(180,80,0,0.3); color: #ff9900; border-color: rgba(180,80,0,0.5); }
+  .threat-mod { background: rgba(139,105,20,0.3); color: var(--bronze-pale); border-color: rgba(139,105,20,0.5); }
+
+  .card-body { flex-grow: 1; }
+
+  .card-name {
+    font-family: var(--font-gothic); font-size: 26px; color: var(--bone-white); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px; line-height: 1.1;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.8);
+  }
+
+  .card-alias {
+    font-family: var(--font-hand); font-size: 18px; color: rgba(232, 220, 200, 0.6); margin-bottom: 15px;
+    font-style: italic;
+  }
+
+  .card-desc {
+    font-family: var(--font-serif); font-size: 14px; color: rgba(232, 220, 200, 0.5); line-height: 1.4;
+    border-left: 2px solid var(--burgundy); padding-left: 12px;
+  }
+
+  .card-footer {
+    margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(139,105,20,0.15);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .case-number {
+    font-family: var(--font-label); font-size: 10px; letter-spacing: 1.5px; color: rgba(139,105,20,0.4);
+  }
+
+  .access-stamp {
+    font-family: var(--font-label); font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(139,0,0,0.5); border: 1.5px solid rgba(139,0,0,0.3);
+    padding: 3px 8px; transform: rotate(-3deg); opacity: 0.7;
+  }
+
+  /* Deco line on hover */
+  .dossier-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px;
+    background: linear-gradient(90deg, var(--crimson), transparent);
+    transition: width 0.4s ease;
+  }
+  .dossier-card:hover::after { width: 100%; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative; z-index: 2; margin-top: 60px; text-align: center;
+    border-top: 1px solid rgba(139,105,20,0.2); padding-top: 20px; width: 100%; max-width: 900px;
+  }
+  .warning {
+    font-family: var(--font-label); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(139,0,0,0.5); line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    .dossier-card { padding: 20px; }
+    .card-name { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="candle-glow" aria-hidden="true"></div>
+
+<header>
+  <div class="header-seal">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="92" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/>
+      <circle cx="100" cy="100" r="85" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="4 3"/>
+      <g transform="translate(100,72)">
+        <path d="M-30,12 L-24,-4 L-16,8 L-8,-12 L0,4 L8,-12 L16,8 L24,-4 L30,12 Z" fill="#8B2020" stroke="#5A0E0E" stroke-width="1"/>
+        <path d="M-24,-4 L-28,-22 L-20,-8" fill="#7A1818"/>
+        <path d="M24,-4 L28,-22 L20,-8" fill="#7A1818"/>
+        <path d="M0,4 L0,-18 L-4,-6 L4,-6 Z" fill="#9B2020"/>
+        <rect x="-28" y="12" width="56" height="5" rx="1" fill="#6B1515"/>
+      </g>
+      <g transform="translate(100,118)" opacity="0.7">
+        <polygon points="0,-18 17,12 -17,12" fill="none" stroke="#8B2020" stroke-width="1.2"/>
+        <polygon points="0,18 -17,-12 17,-12" fill="none" stroke="#8B2020" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="20" fill="none" stroke="#7A1818" stroke-width="0.8"/>
+      </g>
+      <path id="sealTextPath" d="M100,100 m-68,0 a68,68 0 1,1 136,0 a68,68 0 1,1 -136,0" fill="none"/>
+      <text font-family="'UnifrakturMaguntia', cursive" font-size="8" fill="#9B3030" letter-spacing="4">
+        <textPath href="#sealTextPath">IMP · CHORIAX · THRUNE · INFERNA · PACTUM ·</textPath>
+      </text>
+    </svg>
+  </div>
+  <h1>Канцелярия Разведки Ордена Дыбы</h1>
+  <div class="subtitle">Отдел Внешней Оперативной Работы и Внутренней Безопасности</div>
+</header>
+
+<main>
+  <!-- 1. Кровавый Мортос -->
+  <a href="dossier_mortos.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><path d="M50,30 L55,45 L70,45 L58,53 L62,68 L50,58 L38,68 L42,53 L30,45 L45,45 Z" fill="#8B2020"/></svg>
+      <span class="threat-badge threat-ext">Угроза: Умеренная</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Кровавый Мортос</h2>
+      <p class="card-alias">Мясник Расколотых Оков</p>
+      <p class="card-desc">Безумный капитан брига "Баньши". Сотрудничал с Домом Шартаньон. На данный момент считается погибшим. </p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4062/ЧС/ПАО</span>
+      <span class="access-stamp">Секретно</span>
+    </div>
+  </a>
+
+  <!-- 2. Повелитель бурь -->
+  <a href="dossier_stormlord.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><path d="M50,20 L45,50 L60,40 L50,80" fill="none" stroke="#8B2020" stroke-width="3"/></svg>
+      <span class="threat-badge threat-crit">Угроза: Умеренная</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Повелитель Бурь</h2>
+      <p class="card-alias">Друид из Дренчпорта</p>
+      <p class="card-desc">Текущий Король Ураганов. Завербован имперской разведкой.</p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4211/ЧС/ПБ</span>
+      <span class="access-stamp">Наблюдение</span>
+    </div>
+  </a>
+
+  <!-- 3. Арронакс Эндимион -->
+  <a href="dossier_endymion.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><path d="M40,30 L60,30 L65,50 L50,60 L35,50 Z" fill="#8B2020"/><rect x="35" y="55" width="30" height="4" fill="#6B1515"/></svg>
+      <span class="threat-badge threat-crit">Угроза: Критическая</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Арронакс Эндимион</h2>
+      <p class="card-alias">Лорд Адской Гавани</p>
+      <p class="card-desc">Бывший адмирал Челийского флота, предатель и отступник. Хромает на правую ногу. Обладает глубочайшими знаниями о тактике Империи. Контролирует Адскую Гавань на о. Дьявольская Арка.</p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4404/ЧС/ЭНД</span>
+      <span class="access-stamp">Наблюдение</span>
+    </div>
+  </a>
+
+  <!-- 4. Тесса Фэйрвинд -->
+  <a href="dossier_fairwind.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><path d="M50,25 C40,35 30,45 40,55 C45,60 50,55 50,55 C50,55 55,60 60,55 C70,45 60,35 50,25 Z" fill="#8B2020"/></svg>
+      <span class="threat-badge threat-high">Угроза: Высокая</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Тесса Фэйрвинд</h2>
+      <p class="card-alias">Госпожа Квента</p>
+      <p class="card-desc">Харизматичный лидер и мастер политических интриг. Предположительно обладает покровительством божественных сущностей. Сохраняет шаткий нейтралитет с Империей, но склонна к союзам с врагами Короны.</p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4613/ЧС/ФВР</span>
+      <span class="access-stamp">Вербовка</span>
+    </div>
+  </a>
+
+  <!-- 5. Шимали Манукс -->
+  <a href="dossier_manux.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><circle cx="50" cy="50" r="15" fill="none" stroke="#8B2020" stroke-width="2"/><path d="M50,20 L50,30 M50,70 L50,80 M20,50 L30,50 M70,50 L80,50" stroke="#8B2020" stroke-width="2"/></svg>
+      <span class="threat-badge threat-mod">Угроза: Высокая</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Шимали Манукс</h2>
+      <p class="card-alias">Адмирал</p>
+      <p class="card-desc">Лидер и вдохновитель мятежных ячеек "Соляные разрушители/Salt Breakers" и "Горячие головы/Поджигатели"/"Firebrands" </p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4627/ЧС/М</span>
+      <span class="access-stamp">Ликвидация</span>
+    </div>
+  </a>
+
+  <!-- 6. Махейм -->
+  <a href="dossier_machheim.html" class="dossier-card">
+    <div class="card-header">
+      <svg class="mini-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5A0E0E" stroke="#3A0505" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8B2020" stroke-width="1" stroke-dasharray="3 2"/><path d="M35,35 L65,35 L60,65 L40,65 Z" fill="none" stroke="#8B2020" stroke-width="2"/><path d="M45,35 L50,20 L55,35" fill="#8B2020"/></svg>
+      <span class="threat-badge threat-high">Угроза: Высокая</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-name">Махейм</h2>
+      <p class="card-alias"> - - - </p>
+      <p class="card-desc">Инженер - артиллерист. Один из ключевых лиц мятежников известных как "Горячие головы/Поджигатели"/"Firebrands"</p>
+    </div>
+    <div class="card-footer">
+      <span class="case-number">Дело № 4009/ЧС/М</span>
+      <span class="access-stamp">Допрос</span>
+    </div>
+  </a>
+</main>
+
+<footer>
+  <p class="warning">Внимание: Несанкционированный доступ к материалам Канцелярии карается смертной казнью.<br>Все досье являются собственностью Дома Трунов.</p>
+</footer>
+
+</body>
+</html>
